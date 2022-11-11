@@ -1,5 +1,4 @@
-
 #!/usr/bin/python3
 
-import gitme
-gitme.main()
+import main
+main.run()	

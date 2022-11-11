@@ -1,65 +1,13 @@
-import argparse
 import collections
 import configparser
 import hashlib
 from math import ceil
 import os
 import re
-import sys
 import zlib
 
 
-
-argparser = argparse.ArgumentParser(description="Argument parser for gitme")
-
-argsubparsers = argparser.add_subparsers(title="commands", dest='command', required=True)
-
-def main(argv=sys.argv[1]):
-	args = argparser.parse_args(argv)
-
-	if   args.command == "add"         : cmd_add(args)
-    elif args.command == "cat-file"    : cmd_cat_file(args)
-    elif args.command == "checkout"    : cmd_checkout(args)
-    elif args.command == "commit"      : cmd_commit(args)
-    elif args.command == "hash-object" : cmd_hash_object(args)
-    elif args.command == "init"        : cmd_init(args)
-    elif args.command == "log"         : cmd_log(args)
-    elif args.command == "ls-files"    : cmd_ls_files(args)
-    elif args.command == "ls-tree"     : cmd_ls_tree(args)
-    elif args.command == "merge"       : cmd_merge(args)
-    elif args.command == "rebase"      : cmd_rebase(args)
-    elif args.command == "rev-parse"   : cmd_rev_parse(args)
-    elif args.command == "rm"          : cmd_rm(args)
-    elif args.command == "show-ref"    : cmd_show_ref(args)
-    elif args.command == "tag"         : cmd_tag(args)
-
-
-def repo_path(repo, *path):
-	"""Compute path under repo's gitdir."""
-	return os.path.join(repo.gitdir, *path)
-
-def repo_dir(repo, *path, mkdir=False):
-	"""Same as repo_path, but mkdir *path if absent if mkdir."""
-
-	path = repo_path(repo, *path)
-
-	if os.path.exists(path):
-		if os.path.isdir(path):
-			return path
-		else:
-			raise Exception(f'Not a directory {path}')
-
-	if mkdir:
-		os.makedirs(path)
-		return path
-	else:
-		return None
-
-
-def repo_file(repo, *path, mkdir=False):
-	if repo_dir(repo, *path[:-1], mkdir=mkdir):
-		return repo_path(repo, *path)
-
+from utils import *
 
 
 class GitRepository():
@@ -90,15 +38,7 @@ class GitRepository():
 			if vers != 0:
 				raise Exception(f"Unsupported repositoryformatversion {vers}")
 
-defo repo_default_config():
-	ret = configparser.ConfigParser()
 
-	ret.add_section("core")
-	ret.set("core", "repositoryformatversion", "0")
-	ret.set("core", "filemode", "false")
-	ret.set("core", "bare", "false")
-
-	return ret
 
 def repo_create(path):
 	"""Create a new repository at path"""
@@ -134,6 +74,10 @@ def repo_create(path):
 		config.write(f)
 
 	return repo
+
+
+def cmd_init(args):
+	repo_create(args.path)
 
 
 
